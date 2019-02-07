@@ -1,0 +1,30 @@
+crate:
+  image: 'crate/crate:3.2.2'
+  ports:
+    - '4200:4200'
+    - '4300:4300'
+    - '5436:5432'
+
+crate-add-table:
+  build: ./crate-add-table
+  links: 
+    - crate
+  environment:
+    - CRATE_HOST=crate
+
+crate-prometheus-adapter:
+  build: ./crate-prometheus-adapter
+  links: 
+    - crate
+    - crate-add-table
+  environment:
+    - CRATE_HOST=crate
+
+my-prometheus:  
+  build: ./my-prometheus
+  links:
+    - crate
+    - crate-prometheus-adapter
+    - crate-add-table
+  environment:
+    - PROMETHEUS_ADAPTER_HOST=crate-prometheus-adapter
